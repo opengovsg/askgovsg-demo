@@ -1,0 +1,64 @@
+name: docker-compose-template-modest_mendel
+services:
+  backend:
+    build:
+      context: /Users/hong/Projects/docker-compose-template/backend
+      dockerfile: Dockerfile
+    command:
+    - infinity
+    depends_on:
+      database:
+        condition: service_started
+    entrypoint:
+    - sleep
+    init: true
+    labels:
+      com.docker.devenvironments.compose: "true"
+      com.docker.devenvironments.compose.build: "true"
+      com.docker.devenvironments.container: "true"
+      com.docker.devenvironments.name: docker-compose-template-modest_mendel
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 80
+      published: "1337"
+      protocol: tcp
+    stop_signal: SIGKILL
+    volumes:
+    - type: bind
+      source: /Users/hong/Projects/docker-compose-template/backend
+      target: /home
+      bind:
+        create_host_path: true
+    - type: bind
+      source: /Users/hong/Projects/docker-compose-template
+      target: /com.docker.devenvironments.code
+    - type: volume
+      source: vsCodeServerVolume-docker-compose-template-modest_mendel-backend
+      target: /home/vscode
+  database:
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    expose:
+    - "5432"
+    image: postgres
+    labels:
+      com.docker.devenvironments.compose: "true"
+      com.docker.devenvironments.name: docker-compose-template-modest_mendel
+    networks:
+      default: null
+    volumes:
+    - type: volume
+      source: database-data
+      target: /var/lib/postgresql/data
+      volume: {}
+networks:
+  default:
+    name: docker-compose-template-modest_mendel_default
+volumes:
+  database-data:
+    name: docker-compose-template-modest_mendel_database-data
+  vsCodeServerVolume-docker-compose-template-modest_mendel-backend:
+    name: vsCodeServerVolume-docker-compose-template-modest_mendel-backend
