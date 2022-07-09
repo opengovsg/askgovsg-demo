@@ -9,12 +9,6 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "normalize.css": "^8.0.1",
-    "parcel": "^2.0.0"
-  },
-  "devDependencies": {
-    "@parcel/transformer-inline-string": "^2.0.0",
-    "@parcel/transformer-pug": "^2.0.0",
-    "@parcel/transformer-sass": "^2.0.0"
+    "pg": "^8.7.3"
   }
 }
