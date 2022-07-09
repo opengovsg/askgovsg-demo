@@ -1,6 +1,7 @@
 // -----------------------------------------------------------------------------
 // Dependencies
 // -----------------------------------------------------------------------------
+import bodyParser from 'body-parser'
 import express from 'express'
 import url from 'url'
 import path from "path"
@@ -43,15 +44,24 @@ const publicPath = path.join(serverPath, "public")
 // -----------------------------------------------------------------------------
 // Web Server
 // -----------------------------------------------------------------------------
+app.use(bodyParser.json())
 app.use(express.static(publicPath))
+
 app.get("/", async (request, response) => {
-  const result = await pool.query('SELECT * FROM users')
-  response.send(result)
+  const result = await pool.query('SELECT * FROM account')
+  response.send(result.rows)
 });
 
-app.get("/:route", async (request, response) => {
-  const result = await pool.query('SELECT $1::text as message', [`Hello ${request.params.route}!`])
-  response.send(`postgres-node-dev-template: server.js ${result.rows[0].message}`)
+app.get("/account", async (request, response) => {
+  const result = await pool.query('SELECT * FROM account')
+  response.send(result.rows)
+});
+
+app.post("/account", async (request, response) => {
+  const name = request.body.name;
+  const query = 'INSERT INTO account(name) VALUES ($1) RETURNING *'
+  const result = await pool.query(query, [name]);
+  response.send(result.rows)
 });
 
 // -----------------------------------------------------------------------------
