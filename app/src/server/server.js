@@ -5,6 +5,7 @@ import express from 'express'
 import url from 'url'
 import path from "path"
 import pg from 'pg'
+import waitOn from 'wait-on'
 
 // -----------------------------------------------------------------------------
 // Environmental Variables && Constants
@@ -19,6 +20,7 @@ const DB_PASSWORD = process.env.DB_PASSWORD ? process.env.DB_PASSWORD : "postgre
 // -----------------------------------------------------------------------------
 // Initialization
 // -----------------------------------------------------------------------------
+// Setup the database connection
 const pool = new pg.Pool({
   host: DB_HOST,
   port: DB_PORT,
@@ -26,12 +28,15 @@ const pool = new pg.Pool({
   user: DB_USER,
   password: DB_PASSWORD
 })
+await waitOn({ 
+  resources: [`tcp:${DB_HOST}:${DB_PORT}`] 
+})
 // Setup the main application stack
 const app = express()
 // Find the path to the staic file folder
 const filePath = url.fileURLToPath(import.meta.url)
 const serverPath = path.dirname(filePath)
-const publicPath = path.join(serverPath, "public"); 
+const publicPath = path.join(serverPath, "public")
 
 // -----------------------------------------------------------------------------
 // Web Server
