@@ -1,0 +1,1 @@
+console.log("postgres-node-dev-template: client.js");
