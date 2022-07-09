@@ -1,20 +1,36 @@
+# Local development environment configuration
 services:
+
   db:
-    image: postgres
+    build:
+      context: db
+      target: dev
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    volumes:
-      - database-data:/var/lib/postgresql/data
-    expose:
-      - 5432
-  backend:
-    build: backend
-    # volumes:
-    #   - ./backend:/home
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - 5432:5432
+
+  app:
+    build: app
+    environment:
+      PORT: 1337
+      DB_HOST: "db"
+      DB_PORT: 5432
+      DB_NAME: "postgres"
+      DB_USER: "postgres"
+      DB_PASSWORD: "postgres"
+    ports:
+      - 1337:1337
     depends_on:
       - db
+
+  db-admin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "postgres@email.com"
+      PGADMIN_DEFAULT_PASSWORD: "password"
     ports:
-      - 1337:80
-volumes:
-  database-data:
+        - "1111:80"
+    depends_on:
+        - db
