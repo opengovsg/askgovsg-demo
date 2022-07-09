@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "bash scripts/build.sh",
+    "prestart": "bash scripts/build.sh",
     "start": "node dist/server.js"
   },
   "dependencies": {

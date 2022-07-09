@@ -6,6 +6,7 @@ import url from 'url'
 import path from "path"
 import pg from 'pg'
 import waitOn from 'wait-on'
+import { Console } from 'console'
 
 // -----------------------------------------------------------------------------
 // Environmental Variables && Constants
@@ -31,6 +32,7 @@ const pool = new pg.Pool({
 await waitOn({ 
   resources: [`tcp:${DB_HOST}:${DB_PORT}`] 
 })
+console.log(`Database ready at ${DB_HOST}:${DB_PORT}`)
 // Setup the main application stack
 const app = express()
 // Find the path to the staic file folder
@@ -42,6 +44,10 @@ const publicPath = path.join(serverPath, "public")
 // Web Server
 // -----------------------------------------------------------------------------
 app.use(express.static(publicPath))
+app.get("/", async (request, response) => {
+  const result = await pool.query('SELECT * FROM users')
+  response.send(result)
+});
 
 app.get("/:route", async (request, response) => {
   const result = await pool.query('SELECT $1::text as message', [`Hello ${request.params.route}!`])

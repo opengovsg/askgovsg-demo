@@ -6,6 +6,6 @@ FROM postgres as base
 COPY init.sql /docker-entrypoint-initdb.d/0000.sql
 
 FROM base as dev
-COPY dummy.sql /docker-entrypoint-initdb.d/0010.sql
+COPY sample.sql /docker-entrypoint-initdb.d/0010.sql
 
 FROM base as prod
