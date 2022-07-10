@@ -6,7 +6,6 @@ import url from 'url'
 import path from "path"
 import pg from 'pg'
 import waitOn from 'wait-on'
-import { Console } from 'console'
 
 // -----------------------------------------------------------------------------
 // Environmental Variables && Constants
@@ -38,28 +37,48 @@ const app = express()
 // Find the path to the staic file folder
 const filePath = url.fileURLToPath(import.meta.url)
 const serverPath = path.dirname(filePath)
+const viewPath = path.join(serverPath, "views")
 const publicPath = path.join(serverPath, "public")
+// Configure middleware
+app.set('view engine', 'pug')
+app.set('views', viewPath)
+app.use(express.json())
+
 
 // -----------------------------------------------------------------------------
 // Web Server
 // -----------------------------------------------------------------------------
-app.use(express.json())
 app.use(express.static(publicPath))
 
 app.get("/", async (request, response) => {
-  const result = await pool.query('SELECT * FROM account')
-  response.send(result.rows)
+  const results = []
+  results.push(...(await pool.query('SELECT * FROM account')).rows)
+  results.push(...(await pool.query('SELECT * FROM post')).rows)
+  response.render('index', { results })
 });
 
 app.get("/account", async (request, response) => {
-  const result = await pool.query('SELECT * FROM account')
-  response.send(result.rows)
+  const results = (await pool.query('SELECT * FROM account')).rows
+  response.render('account', { results })
 });
 
 app.post("/account", async (request, response) => {
   const name = request.body.name;
-  const query = 'INSERT INTO account(name) VALUES ($1) RETURNING *'
+  const query = 'INSERT INTO account(account_name) VALUES ($1) RETURNING *'
   const result = await pool.query(query, [name]);
+  response.send(result.rows)
+});
+
+app.get("/post", async (request, response) => {
+  const results = (await pool.query('SELECT * FROM post')).rows
+  response.render('post', { results })
+});
+
+app.post("/post", async (request, response) => {
+  const owner = request.body.owner
+  const description = request.body.description
+  const query = 'INSERT INTO post(post_owner_id, post_description) VALUES ($1, $2) RETURNING *'
+  const result = await pool.query(query, [owner, description]);
   response.send(result.rows)
 });
 
