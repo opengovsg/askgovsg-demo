@@ -1,7 +1,6 @@
 // -----------------------------------------------------------------------------
 // Dependencies
 // -----------------------------------------------------------------------------
-import bodyParser from 'body-parser'
 import express from 'express'
 import url from 'url'
 import path from "path"
@@ -44,7 +43,7 @@ const publicPath = path.join(serverPath, "public")
 // -----------------------------------------------------------------------------
 // Web Server
 // -----------------------------------------------------------------------------
-app.use(bodyParser.json())
+app.use(express.json())
 app.use(express.static(publicPath))
 
 app.get("/", async (request, response) => {
