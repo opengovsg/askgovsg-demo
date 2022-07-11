@@ -1,8 +1,13 @@
 // -----------------------------------------------------------------------------
 // Dependencies
 // -----------------------------------------------------------------------------
+import bcrypt from 'bcrypt'
 import express from 'express'
+import flash from 'express-flash'
+import session from 'express-session'
 import url from 'url'
+import passport from 'passport'
+import LocalStrategy from 'passport-local'
 import path from "path"
 import pg from 'pg'
 import waitOn from 'wait-on'
@@ -44,60 +49,120 @@ app.set('view engine', 'pug')
 app.set('views', viewPath)
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
+app.use(flash())
+app.use(session({ 
+  secret: 'keyboard cat', 
+  resave: false, 
+  saveUninitialized: false 
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy({
+    usernameField: 'name',
+    passwordField: 'password',
+  }, async (username, password, callback) => {
+    const query = `
+      SELECT * 
+      FROM account
+      WHERE account_name = $1
+    `
+    const results = await pool.query(query, [username])
+    if (results.rows.length < 1) return callback(null, false)
+    else {
+      const user = results.rows[0]
+      const passwordHash = user["account_password_hash"];
+      const match = await bcrypt.compare(password, passwordHash)
+      if (match) return callback(null, user)
+      else return callback(null, false)
+    }
+  }
+))
+passport.serializeUser((user, callback) => callback(null, user["account_id"]))
+passport.deserializeUser(async (id, callback) => {
+  const query = `
+    SELECT * 
+    FROM account
+    WHERE account_id = $1
+  `
+  const results = await pool.query(query, [id])
+  return callback(null, results.rows[0])
+})
+function checkAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next()
+  }
+  res.redirect('/login')
+}
+function checkNotAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return res.redirect('/')
+  }
+  next()
+}
 
 // -----------------------------------------------------------------------------
 // Web Server
 // -----------------------------------------------------------------------------
 app.use(express.static(publicPath))
 
-app.get("/", async (request, response) => {
+app.get("/", async (req, res) => {
   const results = []
   results.push(...(await pool.query('SELECT * FROM account')).rows)
   results.push(...(await pool.query('SELECT * FROM post')).rows)
-  response.render('index', { results })
+  res.render('index', { results })
 })
 
-app.get("/account", async (request, response) => {
+app.get("/account", checkAuthenticated, async (req, res) => {
   const results = (await pool.query('SELECT * FROM account')).rows
-  response.render('account', { results })
+  res.render('account', { results })
 })
 
-app.post("/account", async (request, response) => {
-  const name = request.body.name
-  const query = 'INSERT INTO account(account_name) VALUES ($1) RETURNING *'
-  const result = await pool.query(query, [name])
-  response.send(result.rows)
-})
-
-app.get("/post", async (request, response) => {
+app.get("/post", checkAuthenticated, async (req, res) => {
   const results = (await pool.query('SELECT * FROM post')).rows
-  response.render('post', { results })
+  res.render('post', { results })
 })
 
-app.post("/post", async (request, response) => {
-  const owner = request.body.owner
-  const description = request.body.description
+app.post("/post", checkAuthenticated, async (req, res) => {
+  const owner = req.body.owner
+  const description = req.body.description
   const query = 'INSERT INTO post(post_owner_id, post_description) VALUES ($1, $2) RETURNING *'
   const result = await pool.query(query, [owner, description])
-  response.send(result.rows)
+  res.send(result.rows)
 })
 
-app.get("/login", async (request, response) => {
-  response.render('login')
+app.get("/register", checkNotAuthenticated, async (req, res) => {
+  res.render('register')
 })
 
-app.post("/login", async (request, response) => {
-  console.log("logging in", request.body.name, request.body.password)
-  response.send("done")
+app.post("/register", checkNotAuthenticated, async (req, res) => {
+  const query = `
+    INSERT INTO account(account_name, account_password_hash) 
+    VALUES ($1, $2) 
+    RETURNING *
+  `
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+    const result = await pool.query(query, [req.body.name, hashedPassword])
+    res.redirect('/login')
+  } catch {
+    res.redirect('/register')
+  }
 })
 
-app.get("/register", async (request, response) => {
-  response.render('register')
+app.get("/login", checkNotAuthenticated, async (req, res) => {
+  res.render('login')
 })
 
-app.post("/register", async (request, response) => {
-  console.log("registering", request.body.name, request.body.password)
-  response.send("done")
+app.post("/login", checkNotAuthenticated, passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login'
+}))
+
+app.post('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) { return next(err) }
+    res.redirect('/')
+  })
 })
 
 

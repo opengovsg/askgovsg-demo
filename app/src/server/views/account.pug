@@ -5,6 +5,8 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title index.pug
   body
+    form(action="logout" method="POST")
+      button(type="submit") Logout
     h1 account table
     ul
       each row in results
