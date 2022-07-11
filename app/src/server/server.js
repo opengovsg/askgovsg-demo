@@ -43,7 +43,7 @@ const publicPath = path.join(serverPath, "public")
 app.set('view engine', 'pug')
 app.set('views', viewPath)
 app.use(express.json())
-
+app.use(express.urlencoded({ extended: false }))
 
 // -----------------------------------------------------------------------------
 // Web Server
@@ -55,32 +55,51 @@ app.get("/", async (request, response) => {
   results.push(...(await pool.query('SELECT * FROM account')).rows)
   results.push(...(await pool.query('SELECT * FROM post')).rows)
   response.render('index', { results })
-});
+})
 
 app.get("/account", async (request, response) => {
   const results = (await pool.query('SELECT * FROM account')).rows
   response.render('account', { results })
-});
+})
 
 app.post("/account", async (request, response) => {
-  const name = request.body.name;
+  const name = request.body.name
   const query = 'INSERT INTO account(account_name) VALUES ($1) RETURNING *'
-  const result = await pool.query(query, [name]);
+  const result = await pool.query(query, [name])
   response.send(result.rows)
-});
+})
 
 app.get("/post", async (request, response) => {
   const results = (await pool.query('SELECT * FROM post')).rows
   response.render('post', { results })
-});
+})
 
 app.post("/post", async (request, response) => {
   const owner = request.body.owner
   const description = request.body.description
   const query = 'INSERT INTO post(post_owner_id, post_description) VALUES ($1, $2) RETURNING *'
-  const result = await pool.query(query, [owner, description]);
+  const result = await pool.query(query, [owner, description])
   response.send(result.rows)
-});
+})
+
+app.get("/login", async (request, response) => {
+  response.render('login')
+})
+
+app.post("/login", async (request, response) => {
+  console.log("logging in", request.body.name, request.body.password)
+  response.send("done")
+})
+
+app.get("/register", async (request, response) => {
+  response.render('register')
+})
+
+app.post("/register", async (request, response) => {
+  console.log("registering", request.body.name, request.body.password)
+  response.send("done")
+})
+
 
 // -----------------------------------------------------------------------------
 // Deployment
