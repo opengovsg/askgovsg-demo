@@ -9,13 +9,7 @@ import passport from 'passport'
 import path from "path"
 import pg from 'pg'
 import waitOn from 'wait-on'
-import {
-  initialize,
-  registerUser,
-  authenticate,
-  checkAuthenticated,
-  checkNotAuthenticated
-} from './auth.js'
+import Auth from './auth.js'
 
 // -----------------------------------------------------------------------------
 // Environmental Variables && Constants
@@ -63,10 +57,10 @@ app.use(session({
   secret: SESSION_SECRET, 
   resave: false, 
   saveUninitialized: false 
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-initialize(passport, db)
+}))
+app.use(passport.initialize())
+app.use(passport.session())
+const auth = new Auth(passport, db).init()
 
 // -----------------------------------------------------------------------------
 // Web Server
@@ -80,17 +74,17 @@ app.get("/", async (req, res) => {
   res.render('index', { results })
 })
 
-app.get("/account", checkAuthenticated, async (req, res) => {
+app.get("/account", auth.check, async (req, res) => {
   const results = (await db.query('SELECT * FROM account')).rows
   res.render('account', { results })
 })
 
-app.get("/post", checkAuthenticated, async (req, res) => {
+app.get("/post", auth.check, async (req, res) => {
   const results = (await db.query('SELECT * FROM post')).rows
   res.render('post', { results })
 })
 
-app.post("/post", checkAuthenticated, async (req, res) => {
+app.post("/post", auth.check, async (req, res) => {
   const owner = req.body.owner
   const description = req.body.description
   const query = `
@@ -102,18 +96,18 @@ app.post("/post", checkAuthenticated, async (req, res) => {
   res.send(result.rows)
 })
 
-app.get("/register", checkNotAuthenticated, async (req, res) => {
+app.get("/register", auth.checkNot, async (req, res) => {
   res.render('register')
 })
-app.post("/register", checkNotAuthenticated, async (req, res) => {
-  await registerUser(req.body.name, req.body.password)
+app.post("/register", auth.checkNot, async (req, res) => {
+  await auth.registerUser(req.body.name, req.body.password)
   res.redirect('/login')
 })
 
-app.get("/login", checkNotAuthenticated, async (req, res) => {
+app.get("/login", auth.checkNot, async (req, res) => {
   res.render('login')
 })
-app.post("/login", checkNotAuthenticated, authenticate({
+app.post("/login", auth.checkNot, auth.authenticate({
   successRedirect: '/',
   failureRedirect: '/login'
 }))
