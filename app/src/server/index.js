@@ -68,24 +68,22 @@ const auth = new Auth(passport, db).init()
 app.use(express.static(publicPath))
 
 app.get("/", async (req, res) => {
-  const results = []
-  results.push(...(await db.query('SELECT * FROM account')).rows)
-  results.push(...(await db.query('SELECT * FROM post')).rows)
-  res.render('index', { results })
+  const accounts = (await db.query('SELECT * FROM account')).rows
+  const posts = (await db.query('SELECT * FROM post')).rows
+  res.render('index', { accounts, posts, user: req.user })
 })
 
 app.get("/account", auth.check, async (req, res) => {
-  const results = (await db.query('SELECT * FROM account')).rows
-  res.render('account', { results })
+  res.render('account', { user: req.user })
 })
 
 app.get("/post", auth.check, async (req, res) => {
   const results = (await db.query('SELECT * FROM post')).rows
-  res.render('post', { results })
+  res.render('post', { results, user: req.user })
 })
 
 app.post("/post", auth.check, async (req, res) => {
-  const owner = req.body.owner
+  const owner = req.user.account_id
   const description = req.body.description
   const query = `
     INSERT INTO post(post_owner_id, post_description) 
@@ -93,11 +91,11 @@ app.post("/post", auth.check, async (req, res) => {
     RETURNING *
   `
   const result = await db.query(query, [owner, description])
-  res.send(result.rows)
+  res.redirect('/')
 })
 
 app.get("/register", auth.checkNot, async (req, res) => {
-  res.render('register')
+  res.render('register', { user: req.user })
 })
 app.post("/register", auth.checkNot, async (req, res) => {
   await auth.registerUser(req.body.name, req.body.password)
@@ -105,7 +103,7 @@ app.post("/register", auth.checkNot, async (req, res) => {
 })
 
 app.get("/login", auth.checkNot, async (req, res) => {
-  res.render('login')
+  res.render('login', { user: req.user })
 })
 app.post("/login", auth.checkNot, auth.authenticate({
   successRedirect: '/',

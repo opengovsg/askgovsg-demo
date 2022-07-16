@@ -1,13 +1,4 @@
-doctype html
-html(lang="en")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    title index.pug
-  body
-    form(action="logout" method="POST")
-      button(type="submit") Logout
-    h1 account table
-    ul
-      each row in results
-        li= JSON.stringify(row)
+extends base.pug
+block main
+  h1 your account
+  div= JSON.stringify(user)

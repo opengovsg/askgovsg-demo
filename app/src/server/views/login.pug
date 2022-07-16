@@ -1,16 +1,11 @@
-doctype html
-html(lang="en")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    title login.pug
-  body
-    h1 Login
-    form(action="login" method="POST")
-      div 
-        label(for="name") Name
-        input(type="text" id="name" name="name")
-      div 
-        label(for="password") Password
-        input(type="password" id="password" name="password")
-      button(type="submit") Login
+extends base.pug
+block main
+  h1 Login
+  form(action="login" method="POST")
+    div 
+      label(for="name") Name
+      input(type="text" id="name" name="name")
+    div 
+      label(for="password") Password
+      input(type="password" id="password" name="password")
+    button(type="submit") Login

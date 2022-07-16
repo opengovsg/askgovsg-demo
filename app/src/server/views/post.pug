@@ -1,11 +1,8 @@
-doctype html
-html(lang="en")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    title post.pug
-  body
-    h1 post table
-    ul
-      each row in results
-        li= JSON.stringify(row)
+extends base.pug
+block main
+  h1 post table
+  form(action="post" method="POST")
+    div 
+      label(for="description") Description
+      input(type="text" id="description" name="description")
+    button(type="submit") Make post
