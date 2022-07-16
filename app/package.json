@@ -18,5 +18,8 @@
     "pg": "^8.7.3",
     "pug": "^3.0.2",
     "wait-on": "^6.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
   }
 }
