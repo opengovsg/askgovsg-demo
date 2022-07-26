@@ -6,17 +6,20 @@
   "scripts": {
     "postinstall": "bash scripts/build.sh",
     "prestart": "bash scripts/build.sh",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "dev": "bash scripts/dev.sh"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
     "express": "^4.17.1",
     "express-flash": "^0.0.2",
     "express-session": "^1.17.3",
+    "normalize-scss": "^7.0.1",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "pg": "^8.7.3",
     "pug": "^3.0.2",
+    "sass": "^1.53.0",
     "wait-on": "^6.0.1"
   },
   "devDependencies": {
