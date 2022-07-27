@@ -1,11 +1,14 @@
 extends base.pug
 block main
-  h1 account table
-  ul
-    each row in accounts
-      li= JSON.stringify(row)
-  h1 post table
-  ul
-    each row in posts
-      li= JSON.stringify(row)
-
+  section.welcome
+    .container
+      h1 Questions for the Singapore Government 
+      a(href="/post")
+        button.primary Submit a question
+  section.questions
+    .container 
+      each question in questions
+        a(href='/question/' + question.question_id)
+          article.question 
+            h3.question-text= question.question_title
+            p.answer= question.question_description

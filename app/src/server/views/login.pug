@@ -1,11 +1,12 @@
 extends base.pug
 block main
-  h1 Login
-  form(action="login" method="POST")
-    div 
-      label(for="name") Name
-      input(type="text" id="name" name="name")
-    div 
-      label(for="password") Password
-      input(type="password" id="password" name="password")
-    button(type="submit") Login
+  .login.container
+    h1 Login
+    form(action="login" method="POST")
+      div.field
+        label(for="name") Name
+        input(type="text" id="name" name="name")
+      div.field
+        label(for="password") Password
+        input(type="password" id="password" name="password")
+      button(type="submit") Login

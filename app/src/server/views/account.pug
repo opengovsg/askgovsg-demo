@@ -1,4 +1,7 @@
 extends base.pug
 block main
+  
+  form(action="logout" method="POST")
+    button(type="submit") Logout
   h1 your account
   div= JSON.stringify(user)

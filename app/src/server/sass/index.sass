@@ -1,5 +1,7 @@
 @import "../../../node_modules/normalize-scss/sass/normalize"
 
+@include normalize()
+
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,16 +13,16 @@ $content-background-color: #FFFFFF
 $well-background-color: #EEEEEE
 $text-color: #222
 $hint-color: #777
-$inverse-background-color: rgba(0,0,0,0.8)
+$inverse-content-background-color: rgba(0,0,0,0.8)
+$inverse-well-background-color: rgba(0,0,0,0.6)
 $inverse-text-color: #FFFFFF
 $inverse-hint-color: rgba($inverse-text-color, 0.7)
 // Styles
-$body-font-family: Arial, sans-serif
-$header-font-family: 'Josefin Sans', sans-serif
+$body-font-family: 'Arial', sans-serif
+$header-font-family: 'Arial', sans-serif
 // Breakpoints
-$xs-max: 400px
-$small-max: 650px
-$medium-max: 1000px
+$medium-min: 650px
+$large-min: 1000px
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,15 +32,14 @@ $medium-max: 1000px
   box-sizing: border-box
 
 html
-  font-size: 18px
-  @media (max-width: $medium-max)
+  font-size: 14px
+  @media (min-width: $medium-min)
     font-size: 16px
-  @media (max-width: $small-max)
-    font-size: 14px
+  @media (min-width: $large-min)
+    font-size: 18px
 
 body
   color: $text-color
-  line-height: 1.7
   font-family: $body-font-family
   font-weight: 300
 
@@ -51,6 +52,125 @@ h1, h2, h3, h4, h5, h6
 input[type="checkbox"]
   cursor: pointer
 
+button
+  border: 0
+  width: 100%
+  max-width: 30em
+  padding: 1em 2em
+  cursor: pointer
+  background-color: $inverse-content-background-color
+  color: $inverse-text-color
+  &.secondary
+    background-color: $content-background-color
+    color: $text-color
+  &:active
+    background-color: $inverse-well-background-color
+
+
 ////////////////////////////////////////////////////////////////////////////////
-// Sub-Sections
+// Components
 ////////////////////////////////////////////////////////////////////////////////
+.container
+  margin-left: auto
+  margin-right: auto
+  width: 1000px
+  max-width: 100%
+  padding: 1rem
+
+  
+////////////////////////////////////////////////////////////////////////////////
+// Specific Styles
+////////////////////////////////////////////////////////////////////////////////
+
+header
+  .container
+    display: flex
+    flex-direction: row
+    align-content: center
+    justify-content: space-between
+    .account
+      display: flex
+      flex-direction: row
+      align-items: center
+      a
+        color: $text-color
+        font-weight: bold
+        text-decoration: none
+        & + a
+          margin-left: 1em 
+
+
+.welcome
+  padding: 2rem
+  background-color: $well-background-color
+  text-align: center
+
+  .container
+    display: flex
+    flex-direction: column
+    align-content: center
+    
+    button
+      margin-top: 1rem
+
+.questions
+  a
+    text-decoration: none
+  .question
+    padding: 1em 0
+    color: $text-color
+    & + .question
+      border-top-style: solid
+      border-top-width: 1px
+      border-color: $well-background-color
+    .answer
+      color: $hint-color
+      display: -webkit-box
+      -webkit-line-clamp: 3
+      -webkit-box-orient: vertical  
+      overflow: hidden
+
+.reply
+  border-top-style: solid
+  border-top-width: 1px
+  border-color: $well-background-color
+  padding: 1rem 0
+
+  textarea
+    margin: 1rem 0
+    width: 100%
+    max-width: 30em
+  
+  .byline
+    color: $hint-color
+    font-size: 0.8rem
+
+.login
+  display: flex
+  flex-direction: column
+  align-items: center
+  .field
+    margin: 1rem 0
+    width: 400px
+    display: flex
+    flex-direction: row
+    align-items: center
+    label
+      margin-right: 1rem
+    input
+      flex: 1
+
+.register
+  display: flex
+  flex-direction: column
+  align-items: center
+  .field
+    margin: 1rem 0
+    width: 400px
+    display: flex
+    flex-direction: row
+    align-items: center
+    label
+      margin-right: 1rem
+    input
+      flex: 1

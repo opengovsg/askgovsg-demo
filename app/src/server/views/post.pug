@@ -1,8 +1,14 @@
 extends base.pug
 block main
-  h1 post table
-  form(action="post" method="POST")
-    div 
-      label(for="description") Description
-      input(type="text" id="description" name="description")
-    button(type="submit") Make post
+  .container
+    h2 Whats you're question?
+    form(action="post" method="POST")
+      h3
+        label(for="title") Question
+      textarea(id="title", name="title", cols="30", rows="1") 
+      h3
+        label(for="description") Description (optional)
+      textarea(id="description", name="description", cols="30", rows="3") 
+      button(type="submit") Make post
+    a(href="/")
+      button.secondary Cancel

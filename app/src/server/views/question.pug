@@ -1,0 +1,18 @@
+extends base.pug
+block main
+  .container
+    h2= question.question_title
+    p= question.question_description
+    .replies
+      each reply in replies
+        article.reply 
+          p= reply.reply_content
+          .byline 
+            .author= reply.account_name
+            .timestamp= reply.reply_created_at
+
+    form.reply(action=`/question/${question.question_id}/reply` method="POST")
+      textarea(id="content", name="content", rows="3") 
+      button(type="submit") Post reply
+      a(href="/")
+        button.secondary Cancel
